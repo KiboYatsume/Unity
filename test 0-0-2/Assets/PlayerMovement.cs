@@ -10,6 +10,7 @@ public class PlayerMovement : MonoBehaviour
     public Transform GroundCheck;
     public float groundDistance = 0.4f;
     public LayerMask groundMask;
+    public float jumHeight = 3f;
     void Update()
     {
         isGrounded = Physics.CheckSphere(GroundCheck.position, groundDistance, groundMask);
@@ -19,15 +20,27 @@ public class PlayerMovement : MonoBehaviour
             velocity.y = -2f;
         }
 
-        float x = Input.GetAxis("Horizontal");
-        float z = Input.GetAxis("Vertical");
+        if (Input.GetButtonDown("Jump"))
+        {
+            velocity.y = jumHeight;
+        }
 
-        Vector3 move = transform.right * x + transform.forward * z;
+        float x = Input.GetAxis("Horizontal");
+        float y = Input.GetAxis("Vertical");
+
+        Vector3 cameraForward = Camera.main.transform.forward;
+        Vector3 cameraRight = Camera.main.transform.right;
+
+        cameraForward.y = 0f;
+        cameraRight.y = 0f;
+        cameraForward.Normalize();
+        cameraRight.Normalize();
+
+        Vector3 move = cameraRight * x + cameraForward * y;
 
         controller.Move(move * speed * Time.deltaTime);
+        controller.Move(velocity * Time.deltaTime);
 
         velocity.y += gravity * Time.deltaTime;
-
-        controller.Move(velocity *Time.deltaTime);
     }
 }
